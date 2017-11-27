@@ -1,0 +1,112 @@
+#include "dht.h"
+#include <LiquidCrystal.h>
+#define dht_apin A0 // Analog Pin sensor is connected to
+#define LDRpin A5 // pin where we connected the LDR and the resistor
+dht DHT;
+float LDRValue = 0.0;     // result of reading the analog pin
+const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+void setup(){
+ // set up the LCD’s number of columns and rows:
+
+  lcd.begin(16, 2);
+  
+  Serial.begin(9600);p
+  delay(500);//Delay to let system boot
+  Serial.println("DHT11 Humidity & temperature Sensor\n\n");
+  delay(1000);//Wait before accessing Sensor
+ 
+}//end "setup()"
+ 
+void loop(){
+  //Start of Program 
+ 
+    DHT.read11(dht_apin);
+    
+    Serial.print("Current humidity = ");
+    Serial.print(DHT.humidity);
+    Serial.print("%  ");
+    Serial.print("temperature = ");
+    Serial.print(DHT.temperature); 
+    Serial.println("C  \n");
+    LDRValue = (float)analogRead(LDRpin); // read the value from the LDR
+    Serial.println(LDRValue);      // print the value to the serial port
+    float Humidity = DHT.humidity;
+    float Temperature = DHT.temperature;
+    float Light = LDRValue;
+    delay(5000);//Wait 5 seconds before accessing sensor again.
+    int possibility;
+    if(Humidity  > 70.0)
+      if(Temperature >= -4.0 && Temperature < 10)
+        if(Light < 500) possibility = 3;
+        else if(Light < 700) possibility = 2;
+        else if(Light < 800) possibility = 1;
+        else if(Light < 1000) possibility = 0;
+        else possibility = -1;
+      else if(Temperature >= 10 && Temperature < 23)
+        if(Light < 500) possibility = 4;
+        else if(Light < 700) possibility = 3;
+        else if(Light < 800) possibility = 2;
+        else if(Light < 1000) possibility = 1;
+        else possibility = 0;
+      else if(Temperature >=23 && Temperature < 30)
+        if(Light < 500) possibility = 5;
+        else if(Light < 700) possibility = 4;
+        else if(Light < 800) possibility = 3;
+        else if(Light < 1000) possibility = 1;
+        else possibility = 0;
+      else if(Temperature >=30)
+        if(Light < 500) possibility = 5;
+        else if(Light < 700) possibility = 4;
+        else if(Light < 800) possibility = 3;
+        else if(Light < 1000) possibility = 1;
+        else possibility = 0;
+    else if(Humidity <= 65.0) possibility = 0;
+    lcd.setCursor(0, 0);
+    //lcd.autoscroll();
+    switch (possibility){
+      case -1:
+        Serial.print("There is no possibility of rain \n");
+        lcd.print("no chance");
+      break;
+      case 0:
+        Serial.print("There is a very low possibility of rain \n");
+        lcd.print("very low chance");
+        break;
+      case 1:
+        Serial.print("There is a low possibility of rain \n");
+        lcd.print("low chance");
+        break;
+      case 2:
+        Serial.print("There is a slight chance of rain \n");
+        lcd.print("slight chance");
+        break;
+      case 3:
+        Serial.print("There is moderate chance of rain \n");
+        lcd.print("moderate chance");
+        break;
+      case 4:
+        Serial.print("There is a high possibility of rain \n");
+        lcd.print("high chance ");
+        break;
+      case 5:
+        Serial.print("There is a very high possibility of rain \n");
+        lcd.print("very high chance");
+    }
+    // set the cursor to column 0, line 1
+
+    //lcd.print(1);//print name
+
+//    lcd.setCursor(0, 1); // set the cursor to column 0, line 2
+
+//    lcd.print(2);//print name
+
+//    delay(750);//delay of 0.75sec
+
+  //  lcd.scrollDisplayLeft();//shifting data on LCD
+
+    //lcd.setCursor(0, 0);// set the cursor to column 0, line1
+  //Fastest should be once every two seconds.
+ return;
+}// end loop() 
